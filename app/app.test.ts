@@ -1,14 +1,13 @@
 import { DynamoDB } from 'aws-sdk';
-import { App } from '../app';
-import { Project } from '../interfaces';
-import { randomString } from '../../lib/util';
-import { emptyProjectData, actionCreators } from '../../@taskboar/model';
+import { emptyProjectData, actionCreators } from '@taskboar/model';
+
+import { App } from './app';
+import { Project } from './interfaces';
+import { randomString } from '../lib/util';
 
 const dynamoClient = new DynamoDB({
   region: 'us-east-2',
-  endpoint: 'https://dynamodb.us-east-2.amazonaws.com',
-  secretAccessKey: 'tP+kPbEJy0r4WN0/y09lROK0XGuFMTWgrJnaCLgX',
-  accessKeyId: 'AKIASKVSJO7XIT4RL673',
+  endpoint: 'http://localhost:8000',
 });
 
 describe('app', () => {

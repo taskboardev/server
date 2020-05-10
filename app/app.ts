@@ -1,8 +1,8 @@
 import { DynamoDB } from 'aws-sdk';
+import { Action } from '@taskboar/model';
 
 import { Logger, Project, ProjectData } from './interfaces';
 import { Store } from './store';
-import { Action } from 'normalized-reducer';
 
 export type Config = 'dev' | 'test';
 

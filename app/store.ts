@@ -1,8 +1,8 @@
 import { DynamoDB } from 'aws-sdk';
 import { AttributeMap } from 'aws-sdk/clients/dynamodb';
+import { makeProject, reducer } from '@taskboar/model';
 
 import { Project, ProjectData } from './interfaces';
-import { makeProject, reducer } from '../@taskboar/model';
 import { Action } from 'normalized-reducer';
 
 export const ERR_PROJECT_EXISTS = 'project exists';
