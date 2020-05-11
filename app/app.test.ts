@@ -3,7 +3,7 @@ import { emptyProjectData, actionCreators } from '@taskboar/model';
 
 import { App } from './app';
 import { Project } from './interfaces';
-import { randomString } from '../lib/util';
+import { randomString } from '../lib/rand';
 
 const dynamoClient = new DynamoDB({
   region: 'us-east-2',
