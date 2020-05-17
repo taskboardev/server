@@ -40,13 +40,13 @@ export class Store {
     const result = await this.client.query(args).promise();
 
     return (result.Items || [])
-      .map(item => transformItem(item))
-      .reduce<Record<string, string>>((titlesByOwnerId, project) => {
-        if (project) {
-          titlesByOwnerId[project.id] = project.title;
-        }
-        return titlesByOwnerId;
-      }, {})
+      .map(item => {
+        const transformed = transformItem(item);
+        return transformed
+          ? { id: transformed.id, title: transformed.title }
+          : undefined;
+      })
+      .filter(item => !!item);
   }
 
   async createProject(id: string, ownerId: string, title: string) {

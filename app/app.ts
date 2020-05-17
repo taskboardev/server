@@ -41,7 +41,10 @@ export class App {
       throw new Error(errors.UNAUTHORIZED);
     }
 
-    return this.store.createProject(uuid(), requestorId, title);
+    const id = uuid();
+    await this.store.createProject(id, requestorId, title);
+
+    return id;
   }
 
   async getProject(token: string, id: string) {

@@ -64,8 +64,27 @@ export const makeServer = (app: App) => {
     const { title } = req.body;
 
     try {
-      await app.createProject(token, title);
-      res.status(200).send();
+      const id = await app.createProject(token, title);
+      res.status(200).json(id);
+    } catch (error) {
+      handleError(error, res);
+      next();
+    }
+  });
+
+  expressHttpServer.get('/projects/:id', async (req, res, next) => {
+    const token = req.app.get('token');
+
+    const { id } = req.params;
+
+    try {
+      const project = await app.getProject(token, id);
+
+      if (!project) {
+        res.status(404).send();
+      }
+
+      res.status(200).json(project);
     } catch (error) {
       handleError(error, res);
       next();
