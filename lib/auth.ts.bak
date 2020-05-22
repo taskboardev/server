@@ -1,0 +1,16 @@
+import admin from 'firebase-admin';
+import axios from 'axios';
+
+// https://github.com/firebase/firebase-admin-node/issues/81
+export const obtainIdToken = async (client: admin.auth.Auth, apiKey: string, uid: string) => {
+  const token = await client.createCustomToken(uid);
+
+  const url = `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${apiKey}`;
+
+  try {
+    const response = await axios.post(url, { token, returnSecureToken: true });
+    return response.data.idToken;
+  } catch (error) {
+    throw new Error(`failed to obtain idToken from customToken: ${error.message}`);
+  }
+};

@@ -2,10 +2,11 @@ import { DynamoDB } from 'aws-sdk';
 import { ServiceAccount } from 'firebase-admin';
 import { Action } from '@taskboar/model';
 
-import { Logger, Project, ProjectData } from './interfaces';
+import { Project, ProjectData } from './interfaces';
 import { Store } from './store';
 import { FirebaseAuth } from './auth';
-import { uuid } from '../lib/rand';
+import { uuid } from '../../lib/rand';
+import { Logger } from '../../lib/log';
 
 export const errors = {
   UNAUTHORIZED: 'unauthorized',
@@ -15,6 +16,7 @@ export const errors = {
 export interface Args {
   firebaseConfig: ServiceAccount,
   firebaseDbName: string,
+  firebaseApiKey: string,
   dynamodb: DynamoDB,
   dynamoTable: string,
   logger?: Logger
@@ -27,11 +29,12 @@ export class App {
   constructor({
     firebaseConfig,
     firebaseDbName,
+    firebaseApiKey,
     dynamodb,
     dynamoTable,
     logger
   }: Args) {
-    this.auth = new FirebaseAuth(firebaseConfig, firebaseDbName);
+    this.auth = new FirebaseAuth(firebaseConfig, firebaseDbName, firebaseApiKey);
     this.store = new Store(dynamodb, dynamoTable);
   }
 
@@ -90,5 +93,9 @@ export class App {
     }
 
     return this.store.updateProjectData(id, action);
+  }
+
+  manuallyCreateUser(email: string, password: string) {
+    return this.auth.createUser(email, password);
   }
 }

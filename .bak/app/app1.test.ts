@@ -3,19 +3,34 @@ import { emptyProjectData, actionCreators } from '@taskboar/model';
 
 import { App } from './app';
 import { Project } from './interfaces';
-import { randomString } from '../lib/rand';
+import { randomString } from '../../lib/rand';
 
+const dynamoRegion = process.env.DYNAMO_REGION;
+const dynamoEndpoint = process.env.DYNAMO_ENDPOINT;
+const dynamoTable = process.env.DYNAMO_TABLE;
+if (!dynamoTable) {
+  throw new Error('DYNAMO_TABLE not found');
+}
+
+const firebaseDbName = process.env.FIREBASE_DB_NAME;
+if (!firebaseDbName) {
+  throw new Error('FIREBASE_DB_NAME not found')
+}
+const firebaseConfigPath = process.env.FIREBASE_CONFIG;
+const firebaseConfig = require(__dirname + '/../' + firebaseConfigPath);
 const dynamoClient = new DynamoDB({
-  region: 'us-east-2',
-  endpoint: 'http://localhost:8000',
+  region: dynamoRegion,
+  endpoint: dynamoEndpoint,
+});
+const app = new App({
+  dynamodb: dynamoClient,
+  firebaseConfig: firebaseConfig,
+  logger: console,
+  firebaseDbName,
+  dynamoTable,
 });
 
 describe('app', () => {
-  const app = new App({
-    dynamodb: dynamoClient,
-    dynamoTable: 'projects',
-  });
-
   test('create, get, and replace project', async () => {
     const ownerId = randomString();
 

@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "test": "jest --watchAll",
-    "migrate": "node app/migrations.js",
-    "dev": "nodemon ./cmd/serve.ts"
+    "migrate": "node .bak/app/migrations.js",
+    "dev": "nodemon .bak/cmd/serve.ts"
   },
   "author": "Briet Sparks",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "@types/socket.io": "^2.1.4",
     "@types/uuid": "^7.0.3",
     "aws-sdk": "^2.672.0",
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

@@ -2,9 +2,15 @@ import express, { Request, Response } from 'express';
 import socketIo from 'socket.io';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { App, errors } from '../app';
+import { Model, errors } from './model';
+import { Logger } from '../lib/log';
 
-export const makeServer = (app: App) => {
+export interface Args {
+  model: Model,
+  logger: Logger,
+}
+
+export const HttpServer = ({ model, logger }: Args) => {
   const expressHttpServer = express();
   const baseHttpServer = require('http').createServer(expressHttpServer);
   const io = socketIo(baseHttpServer);
@@ -50,7 +56,7 @@ export const makeServer = (app: App) => {
     const token = req.app.get('token');
 
     try {
-      const titles = await app.getProjectTitlesOfOwner(token, ownerId);
+      const titles = await model.getPreviewsOfOwner(token, ownerId);
       res.status(200).json(titles);
     } catch (error) {
       handleError(error, res);
@@ -64,7 +70,7 @@ export const makeServer = (app: App) => {
     const { title } = req.body;
 
     try {
-      const id = await app.createProject(token, title);
+      const id = await model.createProject(token, title);
       res.status(200).json(id);
     } catch (error) {
       handleError(error, res);
@@ -78,7 +84,7 @@ export const makeServer = (app: App) => {
     const { id } = req.params;
 
     try {
-      const project = await app.getProject(token, id);
+      const project = await model.getProject(token, id);
 
       if (!project) {
         res.status(404).send();
@@ -93,7 +99,7 @@ export const makeServer = (app: App) => {
 
   expressHttpServer.use((req, res) => {
     if (res.statusCode === 500) {
-      console.log(res.locals.errorMessage)
+      logger.error(res.locals.errorMessage)
     }
   });
 
