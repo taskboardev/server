@@ -1,0 +1,5 @@
+- a user can create and get a project
+- a user can update any project
+- an unauthenticated user cannot create a project
+- an unauthenticated user cannot get a project
+- an unauthenticated user cannot update a project

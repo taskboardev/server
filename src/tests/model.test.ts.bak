@@ -1,0 +1,78 @@
+import { actionCreators, emptyProjectData, Project } from '@taskboar/model';
+
+import { model, obtainTestUsers, TestUser } from './setup';
+
+let user1: TestUser, user2: TestUser;
+beforeAll(async () => {
+  const testUsers = await obtainTestUsers(model);
+  user1 = testUsers[0];
+  user2 = testUsers[1];
+});
+
+export type Test = {
+  setup: () => any
+}
+export const tests: Record<string, any> = {};
+
+test('a user can create and get a project', async () => {
+  const projectId = await model.createProject(user1.token, 'my first project!');
+  const project = await model.getProject(user1.token, projectId);
+  expect(project).toEqual({
+    ...project,
+    id: projectId,
+    title: project?.title
+  });
+});
+
+tests['a user can update a project'] = {
+  setup: () => {
+
+  }
+};
+
+test('a user can update a project', async () => {
+  const projectId = await model.createProject(user1.token, 'my first project!');
+  const project = await model.getProject(user1.token, projectId) as Project;
+
+  const action = actionCreators.batch(
+    actionCreators.create('user', 'u1', { id: 'u1', username: 'user1' }),
+    actionCreators.create('status', 's1', { id: 's1', title: 'Status 1' }),
+    actionCreators.create('task', 't1', { id: 't1', title: 'Task 1', creatorId: 'u1' }),
+    actionCreators.attach('user', 'u1', 'createdTaskIds', 't1'),
+    actionCreators.attach('status', 's1', 'taskIds', 't1'),
+  );
+
+  await model.updateProjectData(user1.token, projectId, action);
+
+  const updated = await model.getProject(user1.token, projectId);
+
+  const expectedUpdated: Project = {
+    ...project,
+    data: {
+      entities: {
+        ...emptyProjectData.entities,
+        user: {
+          'u1': { id: 'u1', username: 'user1', createdTaskIds: ['t1'] }
+        },
+        status: {
+          's1': { id: 's1', title: 'Status 1', taskIds: ['t1'] },
+        },
+        task: {
+          't1': { id: 't1', title: 'Task 1', statusId: 's1', creatorId: 'u1' }
+        },
+      },
+      ids: {
+        ...emptyProjectData.ids,
+        user: ['u1'],
+        status: ['s1'],
+        task: ['t1'],
+      }
+    }
+  };
+
+  expect(updated).toEqual(expectedUpdated);
+});
+
+// describe('model', () => {
+//
+// });

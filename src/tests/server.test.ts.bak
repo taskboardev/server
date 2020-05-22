@@ -1,0 +1,43 @@
+import axios from 'axios';
+import { Server } from 'http';
+
+import { httpServer, model, obtainTestUsers, TestUser } from './setup';
+
+const port = 8001;
+const urlBase = `http://localhost:${port}`;
+
+let instance: Server;
+let user1: TestUser, user2: TestUser;
+
+describe('server', () => {
+  beforeAll(async () => {
+    const testUsers = await obtainTestUsers(model);
+    user1 = testUsers[0];
+    user2 = testUsers[1];
+
+    instance = httpServer.listen(port)
+  });
+
+  afterAll(() => {
+    instance.close();
+  });
+
+  test('a user can create and get a project', async () => {
+    let response;
+
+    const body = { title: 'my project' };
+    const options = { headers: { Authorization: user1.authHeader } };
+    response = await axios.post(`${urlBase}/projects`, body, options);
+
+    const projectId = response.data;
+    response = await axios.get(`${urlBase}/projects/${projectId}`, options);
+
+    const project = response.data;
+    expect(project).toEqual({
+      ...project,
+      id: projectId,
+      title: body.title
+    });
+  });
+});
+

@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import socketIo from 'socket.io';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { Action, ProjectData } from '@taskboar/model';
+
 import { Model, errors } from './model';
 import { Logger } from '../lib/log';
 
@@ -97,17 +99,28 @@ export const HttpServer = ({ model, logger }: Args) => {
     }
   });
 
+  expressHttpServer.patch('/projects/:id', async (req, res, next) => {
+    const token = req.app.get('token');
+
+    const { id } = req.params;
+    const action = req.body as Action<ProjectData>;
+
+    try {
+      await model.updateProjectData(token, id, action);
+      res.status(200).send();
+    } catch (error) {
+      handleError(error, res);
+      next();
+    }
+  });
+
   expressHttpServer.use((req, res) => {
     if (res.statusCode === 500) {
       logger.error(res.locals.errorMessage)
     }
   });
 
-  return {
-    run: (port: number) => {
-      expressHttpServer.listen(port, () => console.log(`listening on port ${port}`))
-    }
-  };
+  return expressHttpServer;
 };
 
 function handleError(error: Error, res: Response) {

@@ -11,6 +11,6 @@ export function getVariable(name: string): string {
 
 export function getByPath<T>(varname: string): T {
   const path = getVariable(varname);
-  const val = require(path);
+  const val = require(`../${path}`);
   return val as T;
 }

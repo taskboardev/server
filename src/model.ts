@@ -93,7 +93,7 @@ export class Model {
       throw new Error(errors.UNAUTHORIZED);
     }
 
-    return this.persistence.updateProjectData(id, action);
+    await this.persistence.updateProjectData(id, action);
   }
 
   manuallyCreateUser(email: string, password: string) {

@@ -1,0 +1,99 @@
+import axios from 'axios';
+import { actionCreators, emptyProjectData, Project } from '@taskboar/model';
+
+import { model, TestUser, baseUrl, setupSuite, TestSuite } from './setup';
+
+describe('a user can update a project', () => {
+  let suite: TestSuite;
+  beforeAll(async () => {
+    suite = await setupSuite();
+    suite.startServer();
+  });
+
+  afterAll(() => {
+    suite.stopServer();
+  });
+
+  test('via model', async () => {
+    const test = new TestUpdateProject(suite.user1);
+
+    // setup
+    const { action, project } = await test.setup();
+
+    // act
+    await model.updateProjectData(suite.user1.token, project.id, action);
+    const updated = await model.getProject(suite.user1.token, project.id);
+
+    // verify
+    test.verify(updated);
+  });
+
+  test('via http server', async () => {
+    const test = new TestUpdateProject(suite.user1);
+
+    // setup
+    const { project, action } = await test.setup();
+
+    // act
+    const options = { headers: { Authorization: suite.user1.authHeader } };
+    await axios.patch(`${baseUrl}/projects/${project.id}`, action, options);
+    const response = await axios.get(`${baseUrl}/projects/${project.id}`, options);
+
+    // verify
+    test.verify(response.data);
+  });
+});
+
+class TestUpdateProject {
+  project?: Project;
+  user: TestUser;
+
+  constructor(user: TestUser) {
+    this.user = user;
+  }
+
+  async setup() {
+    const projectId = await model.createProject(this.user.token, 'my first project!');
+    const project = await model.getProject(this.user.token, projectId) as Project;
+
+    const action = actionCreators.batch(
+      actionCreators.create('user', 'u1', { id: 'u1', username: 'user1' }),
+      actionCreators.create('status', 's1', { id: 's1', title: 'Status 1' }),
+      actionCreators.create('task', 't1', { id: 't1', title: 'Task 1', creatorId: 'u1' }),
+      actionCreators.attach('user', 'u1', 'createdTaskIds', 't1'),
+      actionCreators.attach('status', 's1', 'taskIds', 't1'),
+    );
+
+    this.project = project;
+
+    return { project, action };
+  }
+
+  verify(updated: Project|undefined) {
+    const expected: Project = {
+      ...(this.project as Project),
+      data: {
+        entities: {
+          ...emptyProjectData.entities,
+          user: {
+            'u1': { id: 'u1', username: 'user1', createdTaskIds: ['t1'] }
+          },
+          status: {
+            's1': { id: 's1', title: 'Status 1', taskIds: ['t1'] },
+          },
+          task: {
+            't1': { id: 't1', title: 'Task 1', statusId: 's1', creatorId: 'u1' }
+          },
+        },
+        ids: {
+          ...emptyProjectData.ids,
+          user: ['u1'],
+          status: ['s1'],
+          task: ['t1'],
+        }
+      }
+    };
+
+    expect(updated).toEqual(expected);
+  }
+}

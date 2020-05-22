@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "jest --watchAll",
-    "migrate": "node .bak/app/migrations.js",
+    "migrate": "node src/migrations/init.js",
     "dev": "nodemon .bak/cmd/serve.ts"
   },
   "author": "Briet Sparks",
@@ -17,6 +17,7 @@
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.2",
     "@types/socket.io": "^2.1.4",
+    "@types/supertest": "^2.0.9",
     "@types/uuid": "^7.0.3",
     "aws-sdk": "^2.672.0",
     "axios": "^0.19.2",
@@ -28,6 +29,7 @@
     "jest": "^25.4.0",
     "nodemon": "^2.0.3",
     "socket.io": "^2.3.0",
+    "supertest": "^4.0.2",
     "ts-node": "^8.9.0",
     "typescript": "^3.8.3",
     "uuid": "^8.0.0",

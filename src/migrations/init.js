@@ -1,9 +1,10 @@
 const { DynamoDB } = require('aws-sdk');
 
-const dynamoClient = new DynamoDB({
-  region: 'us-east-2',
-  endpoint: 'http://localhost:8000',
-});
+require('dotenv').config();
+const region = process.env.DYNAMO_REGION;
+const endpoint = process.env.DYNAMO_ENDPOINT;
+
+const dynamoClient = new DynamoDB({ region, endpoint });
 
 const args = {
   TableName: 'projects',
